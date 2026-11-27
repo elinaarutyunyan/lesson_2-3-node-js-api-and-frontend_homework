@@ -4,8 +4,20 @@ import { STOCK } from './seed.ts'
 import { store } from './store.ts'
 import { HttpError } from './http.ts'
 
-export async function listLoans(_url: URL): Promise<Snapshot> {
-  return { stock: STOCK, loans: await store.list() }
+export async function listLoans(url: URL): Promise<Snapshot> {
+  const loans = await store.list()
+  const values = url.searchParams.getAll('status')
+  if (values.length === 0 || (values.length === 1 && values[0] === 'all')) {
+    return { stock: STOCK, loans }
+  }
+  if (values.length !== 1) {
+    throw new HttpError(400, 'INVALID_FILTER', 'Параметр status указан несколько раз.')
+  }
+  const status = values[0]
+  if (status !== 'active' && status !== 'returned') {
+    throw new HttpError(400, 'INVALID_FILTER', 'Допустимые значения status: all, active, returned.')
+  }
+  return { stock: STOCK, loans: loans.filter(loan => loan.status === status) }
 }
 
 function parseInput(body: unknown): LoanInput {

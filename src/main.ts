@@ -88,8 +88,8 @@ async function submitIssue() {
     snapshot = { ...snapshot, loans: [...snapshot.loans, loan] }
     form.reset()
     show('Выдача сохранена.')
-  } catch {
-    show('Не удалось сохранить выдачу.', true)
+  } catch (error) {
+    show(error instanceof Error ? error.message : 'Не удалось сохранить выдачу.', true)
   } finally { setBusy(false) }
 }
 
@@ -101,8 +101,8 @@ async function submitReturn(id: string) {
     const loan = await takeBack(id)
     snapshot = { ...snapshot, loans: snapshot.loans.map(row => (row.id === loan.id ? loan : row)) }
     show('Возврат принят.')
-  } catch {
-    show('Не удалось принять возврат.', true)
+  } catch (error) {
+    show(error instanceof Error ? error.message : 'Не удалось принять возврат.', true)
   } finally { setBusy(false) }
 }
 
